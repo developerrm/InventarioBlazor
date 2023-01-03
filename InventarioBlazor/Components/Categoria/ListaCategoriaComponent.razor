@@ -1,0 +1,31 @@
+﻿@using Entidades
+@using Business
+<h3>Lista Productos</h3>
+<hr/>
+<a href="categoria/create">Crear nueva categoria</a>
+<hr />
+<table class="table table-hover table-bordered">
+    <thead>
+    <th>Descripcion</th>
+    </thead>
+    <tbody>
+        @foreach (var categoria in categoriaList)
+        {
+            <tr>                
+                <td>@categoria.Descripcion</td>                
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+
+    List<Categoria> categoriaList = new List<Categoria>();
+    string message = "";
+    protected override async Task OnParametersSetAsync()
+    {
+        
+        categoriaList = BCategoria.CategoriaList();
+    }
+
+}

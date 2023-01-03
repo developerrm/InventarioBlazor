@@ -1,0 +1,94 @@
+﻿@using Entidades
+@using Business
+@inject NavigationManager navigate
+<div>
+
+    <div class="form-group">
+        <label>Bodegas</label>
+        <div class="form-group">
+            <Select class="form-control" @onchange="ChangedBodega">
+                <option value="">Seleccione una bodega</option>
+                @foreach (var bodega in bodegas)
+                {
+                    <option value="@bodega.BodegaID">@bodega.Nombre</option>
+                }
+            </Select>
+        </div>
+    </div>
+    <EditForm Model="entradaSalidaActual">
+        <div class="form-group">
+            <InputSelect @bind-Value="entradaSalidaActual.StorageID" class="form-control">
+                <option value="">Seleccione una producto</option>
+                @foreach (var storage in storages)
+                {
+                    <option value="@storage.StorageID">@storage.Producto.Descripcion</option>
+                }
+            </InputSelect>
+        </div>
+        <div class="form-group">
+            <label>Ingrese la cantidad</label>
+            <InputNumber @bind-Value="entradaSalidaActual.Cantidad" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label>Marque si es una Entrada</label>
+            <InputCheckbox @bind-Value="entradaSalidaActual.EsEntrada" class="form-control" />
+        </div>
+        <hr/>
+        <input class="form-control" type="button" value="@buttonValue" @onclick="SaveInput" />
+    </EditForm>
+
+    @*<input type="button" class="btn-primary" value="Agregar Producto" @onclick="GuadarProducto" />*@
+    @message
+</div>
+@code {
+    EntradaSalida entradaSalidaActual = new EntradaSalida();
+    List<Bodega> bodegas = new List<Bodega>();
+    List<Storage> storages = new List<Storage>();
+    string message;
+    Producto productoActual = new Producto();
+    Storage storageActual = new Storage();
+    string buttonValue => entradaSalidaActual.EsEntrada ? "Registrar Entrada" : "Registrar Salida";
+    protected override async Task OnInitializedAsync()
+    {
+        bodegas = BBodega.BodegaList();
+        storages = BStorage.StorageList();
+    }
+    private void ChangedBodega(ChangeEventArgs e)
+    {
+        if (e.Value.ToString().Length > 0)
+            storages = BStorage.StorageByBodegaID(e.Value.ToString());
+        //navigate.NavigateTo("/product/Listado");
+    }
+    private void SaveInput()
+    {
+        entradaSalidaActual.FechaInOut = DateTime.Now;
+        storageActual = storages.LastOrDefault(x => x.StorageID == entradaSalidaActual.StorageID);
+        productoActual =  storageActual.Producto;
+        if (entradaSalidaActual.EsEntrada)
+        {
+            storageActual.CantidadParcial = storageActual.CantidadParcial + entradaSalidaActual.Cantidad;
+            BStorage.Update(storageActual);
+
+            productoActual.CantidadTotal = productoActual.CantidadTotal + entradaSalidaActual.Cantidad;
+            BProducto.Update(productoActual);
+            message = "Entrada registrada";
+        }else{
+            if (ValidarSalida(entradaSalidaActual.Cantidad,storageActual.CantidadParcial))
+            {
+                storageActual.CantidadParcial = storageActual.CantidadParcial - entradaSalidaActual.Cantidad;
+                BStorage.Update(storageActual);
+
+                productoActual.CantidadTotal = productoActual.CantidadTotal - entradaSalidaActual.Cantidad;
+                BProducto.Update(productoActual);
+                message = "Salida registrada";
+            }else
+                message = "No hay suficiente stock";
+            
+        }
+    }
+    private bool ValidarSalida(int cantidad, int total){
+        if (total > cantidad)
+            return true;
+        return false;
+    }
+}

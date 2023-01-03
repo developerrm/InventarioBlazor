@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="Components\Products\CreateProductComponent - Copia.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Components\Categoria\CreateCategoriaComponent.razor" />
+    <None Include="Components\Categoria\ListaCategoriaComponent.razor" />
+    <None Include="Components\EntradasSalidas\EntradasSalidasComponent.razor" />
+    <None Include="Components\Products\CreateProductComponent.razor" />
+    <None Include="Components\Products\ListaProductosComponent.razor" />
+    <None Include="Components\Products\UpdateProductoComponent.razor" />
+    <None Include="Components\Storage\CreateStorageComponent.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Business\Business.csproj" />
+    <ProjectReference Include="..\Entidades\Entidades.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,55 @@
+﻿@using Entidades
+@using Business
+@inject NavigationManager navigate
+<h3>Registrando Almacenamiento</h3>
+<div>
+    <EditForm Model="storageActual">
+        <div class="form-group">
+            <label>Bodega:</label>
+            <InputSelect @bind-Value="@storageActual.BodegaID" class="form-control">
+                <option value="">Seleccione una Bodega</option>
+                @foreach (var bodega in bodegas)
+                {
+                    <option value="@bodega.BodegaID">@bodega.Nombre</option>
+                }
+            </InputSelect>
+        </div>
+        <div class="form-group">
+            <label>Producto:</label>
+            <InputSelect @bind-Value="@storageActual.ProductoID" class="form-control">
+                <option value="">Seleccione una producto</option>
+                @foreach (var producto in productos)
+                {
+                    <option value="@producto.ProductoID">@producto.Descripcion</option>
+                }
+            </InputSelect>
+        </div>
+        <input type="button" class="btn-primary" value="Grabar" @onclick="GuadarAlmacenamiento" />
+    </EditForm>
+    <div class="text-center h4">
+        @message
+    </div>
+</div>
+@code {
+    Storage storageActual = new Storage();
+    List<Bodega> bodegas = new List<Bodega>();
+    List<Producto> productos = new List<Producto>();
+    string message;
+    protected override async Task OnInitializedAsync()
+    {
+        bodegas = BBodega.BodegaList();
+        productos = BProducto.ProductoList();
+    }
+    private void GuadarAlmacenamiento()
+    {
+        //storageActual.StorageID = Convert.ToInt32($"{storageActual.BodegaID.ToString() + storageActual.ProductoID.ToString()}");
+        storageActual.FechaActualizacion = DateTime.Now;
+        if (!BStorage.EstaProductoEnAlmacenamiento(storageActual.BodegaID.ToString(),storageActual.ProductoID.ToString()))
+        {
+            BStorage.Create(storageActual);
+            message = "Producto Registrado con exito!";
+        }
+        else
+            message = "Producto ya existe";
+    }
+}

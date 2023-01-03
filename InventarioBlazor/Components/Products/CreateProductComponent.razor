@@ -1,0 +1,41 @@
+﻿@using Entidades
+@using Business
+@inject NavigationManager navigate
+<h3>Creación de Productos</h3>
+<div>
+    <EditForm Model="productoActual">
+        <div class="form-group">
+            <label>Codigo</label>
+            <InputText @bind-Value="@productoActual.Codigo" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label>Descripcion</label>
+            <InputTextArea @bind-Value="@productoActual.Descripcion" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label>Categorias Disponbles</label>
+            <InputSelect @bind-Value="@productoActual.CategoriaID" class="form-control">
+                @foreach (var categoria in categorias)
+                {
+                    <option value="@categoria.CategoriaID">@categoria.Descripcion</option>
+                }
+            </InputSelect>
+        </div>
+        <input type="button" class="btn-primary" value="Agregar Producto" @onclick="GuadarProducto" />
+
+
+    </EditForm>
+</div>
+@code {
+    Producto productoActual = new Producto();
+    List<Categoria> categorias = new List<Categoria>();
+    protected override async Task OnInitializedAsync()
+    {
+        categorias = BCategoria.CategoriaList();
+    }
+    private void GuadarProducto()
+    {
+        BProducto.Create(productoActual);
+        navigate.NavigateTo("/product/Listado");
+    }
+}

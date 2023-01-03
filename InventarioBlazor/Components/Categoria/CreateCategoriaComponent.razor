@@ -1,0 +1,22 @@
+﻿@using Entidades
+@using Business
+@inject NavigationManager navigate
+<h3>Creación de Categorias</h3>
+<div>
+    <EditForm Model="categoriaActual">
+        <div class="form-group">
+            <label>Descripcion</label>
+            <InputText @bind-Value="@categoriaActual.Descripcion" class="form-control" />
+        </div>
+        <input type="button" class="btn-primary" value="Agregar categoria" @onclick="GuadarCategoria" />
+    </EditForm>
+</div>
+@code {
+    Categoria categoriaActual = new Categoria();
+
+    private void GuadarCategoria()
+    {
+        BCategoria.Create(categoriaActual);
+        navigate.NavigateTo("/categoria/Listado");
+    }
+}
