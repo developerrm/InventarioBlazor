@@ -1,0 +1,23 @@
+﻿@page "/ObjetivosPersonales"
+@using InventarioBlazor.Data;
+
+<hr />
+<button class="btn-primary" @onclick="ShowModal"> <img src="../images/icons/agregar.svg" /> Crear nuevo Objetivo</button>
+<hr />
+<ModalBlazor @ref="modal" IsVisible="modalVisible">
+    <!-- Contenido del modal -->
+    <ObjetivoComponent />
+</ModalBlazor>
+
+@code {
+    private ModalBlazor modal;
+    private bool modalVisible = false;
+    private string info;
+
+    private void ShowModal() => modalVisible = true;
+
+}
+
+<hr />
+
+<ListadoDeObjetivoComponent />
