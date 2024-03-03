@@ -1,0 +1,68 @@
+﻿@using Entidades
+@using Business
+@inject NavigationManager navigate
+
+<h1>Mi Plan de acción</h1>
+<br />
+<h2>¿Cúal es tu objetivo Final?</h2>
+
+<EditForm Model="objetivoActual">
+
+    <div class="mb-3">
+        <br />
+        <div style="display:inline-flex">
+            En los proximos
+            <InputNumber placeholder="30" class="form-control" style="width:60px" @bind-Value="objetivoActual.Tiempo" @onblur="ActualizarFechaFin" />
+            días
+        </div>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Que haré?</label>
+        <InputTextArea class="form-control" placeholder="Escribe lo que quieres lograr" @bind-Value="objetivoActual.Descripcion"></InputTextArea>
+    </div>
+    <br />
+    <p>
+        <h3>Escenario Optimista</h3>
+        <InputTextArea class="form-control" placeholder="Escribir que sería lo ideal para superar tu objetivo" @bind-Value="objetivoActual.EscenarioIdeal"></InputTextArea>
+    </p>
+    <p>
+        <h3>Escenario Pesimista</h3>
+        <InputTextArea class="form-control" placeholder="Escribir porque razón no cumplirias tu objetivo" @bind-Value="objetivoActual.EscenarioPesimista"></InputTextArea>
+    </p>
+    @if (@objetivoActual.FechaFin != null)
+    {
+        <div>
+            Tu meta deberá estar terminada hasta el @objetivoActual.FechaFin
+        </div>
+    }
+    <input type="button" class="btn-primary" value="Guardar" @onclick="GuadarCategoria" />
+</EditForm>
+
+@code {
+    [Parameter]
+    public Objetivo objetivoActual { get; set; }
+    string mostrarItem = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (objetivoActual == null)
+            objetivoActual = new Objetivo();
+    }
+    private void ActualizarFechaFin()
+    {
+        if (objetivoActual != null)
+        {
+            objetivoActual.FechaFin = DateTime.Now.AddDays(Convert.ToInt32(objetivoActual.Tiempo));
+        }
+    }
+    private void GuadarCategoria()
+    {
+        if (objetivoActual.ObjetivoId > 0)
+            BObjetivosPersonales.Update(objetivoActual);
+        else
+            BObjetivosPersonales.Create(objetivoActual);
+        navigate.NavigateTo("/ObjetivosPersonales", forceLoad: true);
+    }
+
+
+}

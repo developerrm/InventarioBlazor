@@ -1,0 +1,99 @@
+﻿@using Entidades
+@using Business
+@inject MessagBoxService _IMessageBoxService;
+@if (listadoObjetivos.Count == 0)
+{
+    <p>No tienes objetivos planeados</p>
+}
+
+<div class="accordion" id="accordeon">
+    @{
+        int i = 1;
+    }
+    @foreach (Objetivo objetivo in listadoObjetivos)
+    {
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                        data-bs-target="Cod_@i.ToString()" aria-controls="Cod_@i.ToString()">
+                    <div style="width:100%">
+                        @objetivo.Descripcion
+                    </div>
+
+                </button>
+            </h2>
+            <div class="accordion-collapse collapse" id="Cod_@i.ToString()" data-bs-parent="#accordeon">
+                <div class="accordion-body">
+                    <div style="width:100%; text-align:end ">
+                        <img src="../images/icons/editar.svg" @onclick="()=>ShowModal(objetivo)" />
+                        <img src="../images/icons/delete.svg" @onclick="()=>Eliminar(objetivo)" />
+                    </div>
+                    Tienes hasta @objetivo.FechaFin para que en el mejor escenario: @objetivo.EscenarioIdeal <br>
+                    Y en el peor escenario: @objetivo.EscenarioPesimista
+                    <br>
+                </div>
+            </div>
+        </div>
+        i = i + 1;
+    }
+</div>
+<ModalBlazor @ref="modal" IsVisible="modalVisible">
+    <!-- Contenido del modal -->
+    <ObjetivoComponent objetivoActual="@objetivoActual" />
+</ModalBlazor>
+
+<script>
+    function toogle() {
+        // Obtén una referencia a los botones de toogle
+        let botonesToggle = document.querySelectorAll('[data-bs-toggle="collapse"]');
+
+        // Agrega un evento "click" a cada botón de toogle
+        const mi = botonesToggle.forEach((boton) => {
+            boton.addEventListener('click', () => {
+                // Alternar la clase 'collapsed' en el botón de toogle
+                boton.classList.toggle('collapsed');
+                // Aquí puedes agregar tu lógica personalizada si es necesario
+                // Si deseas realizar alguna acción cuando se expande o colapsa un elemento, puedes hacerlo aquí
+                let elemento = document.querySelector('#'.concat(boton.getAttribute("data-bs-target")));
+                elemento.classList.toggle('show');
+            });
+        });
+    }
+    toogle();
+</script>
+
+@code {
+    private ModalBlazor modal;
+    private bool modalVisible = false;
+    private string info;
+
+    private void ShowModal(Objetivo sender)
+    {
+        modalVisible = true;
+        objetivoActual = sender;
+
+    }
+    string mostrarItem = "";
+
+    List<Objetivo> listadoObjetivos = new List<Objetivo>();
+    Objetivo objetivoActual = new Objetivo();
+    protected override async Task OnInitializedAsync()
+    {
+        listadoObjetivos = BObjetivosPersonales.ListadoDeObjetivos();
+    }
+    public class Toogle
+    {
+        public string Expanded { get; set; } = "";
+    }
+    public void Eliminar(Objetivo sender)
+    {
+        _IMessageBoxService.Show("Esta seguro que desea eliminar este plan de Accion?","", MessagBoxService.TipoMessage.Confirmacion, MessagBoxService.Buttons.SiNo);
+        if (_IMessageBoxService.result == null)
+            return;
+        if (!(bool)_IMessageBoxService.result)
+            return;
+        BObjetivosPersonales.Delete(sender);
+        listadoObjetivos.Remove(sender);
+    }
+}
+
